@@ -1,9 +1,22 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using WorldcupWeb.Data;
+using WorldcupWeb.Models;
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<WorldcupWebContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("WorldcupWebContext") ?? throw new InvalidOperationException("Connection string 'WorldcupWebContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    SeedData.Initialize(services);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
